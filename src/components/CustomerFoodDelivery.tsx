@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Language } from '../types';
+import { SnappTrackingMap } from './SnappTrackingMap';
 import {
   getPricingConfig,
   calculateDeliveryBasePrice,
@@ -938,7 +939,34 @@ export const CustomerFoodDelivery: React.FC<CustomerFoodDeliveryProps> = ({
             </div>
           </div>
 
-          {/* Order Summary Details */}
+          {/* Snapp Live Courier Delivery Tracking Map */}
+          <SnappTrackingMap
+            pickupPoint={{
+              lat: 36.1910,
+              lng: 44.0090,
+              name: `مطعم ${activeOrder.restaurantName || 'أربيل'}`,
+            }}
+            destinationPoint={{
+              lat: 36.1980,
+              lng: 44.0200,
+              name: activeOrder.deliveryAddress || 'عنوانك المسجل',
+            }}
+            driverData={{
+              driverId: 'courier-active-1',
+              driverName: 'المندوب أحمد الجبوري',
+              phone: '07709876543',
+              vehicleDetails: 'دراجة توصيل سريعة 🛵 (أربيل)',
+              rating: '4.9',
+              lat: activeOrder.status === 'delivered' ? 36.1980 : (activeOrder.status === 'ready' ? 36.1950 : 36.1920),
+              lng: activeOrder.status === 'delivered' ? 44.0200 : (activeOrder.status === 'ready' ? 44.0150 : 44.0100),
+              heading: 65,
+              speedKmH: activeOrder.status === 'ready' ? 38 : 0,
+            }}
+            tripPhase={activeOrder.status === 'delivered' ? 'completed' : (activeOrder.status === 'ready' ? 'in_trip' : 'en_route_to_pickup')}
+            role="customer"
+            mapHeight="320px"
+            title="تتبع مسار مندوب التوصيل المباشر 🛵"
+          />
           <div className="p-4 rounded-2xl bg-[#1b1d28] border border-[#2e3140] space-y-3">
             <div className="flex items-center justify-between border-b border-[#2e3140] pb-2 text-xs font-cairo">
               <span className="font-extrabold text-[#f3efe6]">تفاصيل الشحنة والطلب</span>

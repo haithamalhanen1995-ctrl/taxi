@@ -26,6 +26,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Language } from '../types';
 import { LiveCustomerMap } from './LiveCustomerMap';
+import { SnappTrackingMap } from './SnappTrackingMap';
 import { SideDrawer } from './SideDrawer';
 import {
   getDriverStats,
@@ -548,31 +549,39 @@ export const DriverHomeScreen: React.FC<DriverHomeScreenProps> = ({
           </span>
         </div>
 
-        {/* Live Navigation Map */}
-        <div className="w-full h-64 sm:h-72 rounded-[20px] overflow-hidden border border-[#2e3140] shadow-xl relative">
-          {/* Live Firebase GPS status overlay badge */}
-          <div className="absolute top-2 right-2 z-20 bg-[#12131a]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#2fa6a6]/50 flex items-center gap-2 shadow-lg">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#2fa6a6] animate-ping" />
-            <span className="text-[11px] font-bold text-[#2fa6a6] font-cairo">
-              📡 تتبع مباشر (Firebase Realtime)
-            </span>
-            <span className="text-[10px] text-[#f3efe6] font-mono dir-ltr">
-              [{driverGps.lat.toFixed(4)}, {driverGps.lng.toFixed(4)}]
-            </span>
-          </div>
-
-          <LiveCustomerMap
-            pickupLat={request.pickupLat}
-            pickupLng={request.pickupLng}
-            pickupName={request.pickupName}
-            destLat={request.destLat}
-            destLng={request.destLng}
-            destName={request.destName}
-            driverLocation={{
+        {/* Live Snapp Navigation Map */}
+        <div className="w-full rounded-[20px] overflow-hidden border border-[#2e3140] shadow-xl relative">
+          <SnappTrackingMap
+            pickupPoint={{
+              lat: request.pickupLat,
+              lng: request.pickupLng,
+              name: request.pickupName,
+            }}
+            destinationPoint={{
+              lat: request.destLat,
+              lng: request.destLng,
+              name: request.destName,
+            }}
+            driverData={{
+              driverId,
+              driverName: driverName || 'السائق المعتمد',
+              phone: '07709876543',
+              vehicleDetails: 'سيارة تكسي معتمدة',
+              rating: '4.9',
               lat: driverGps.lat,
               lng: driverGps.lng,
               heading: driverGps.heading,
+              speedKmH: isGpsLive ? 45 : 0,
             }}
+            tripPhase={phase === 'en_route_to_pickup' ? 'en_route_to_pickup' : 'in_trip'}
+            role="driver"
+            onPhaseAdvance={(nextPhase) => {
+              if (nextPhase === 'arrived_at_pickup' || nextPhase === 'in_trip' || nextPhase === 'completed') {
+                handleAdvanceRidePhase();
+              }
+            }}
+            mapHeight="380px"
+            title="خارطة التتبع والملاحة الحية — اسنپ 🧭"
           />
         </div>
 

@@ -33,6 +33,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Language } from '../types';
 import { SideDrawer } from './SideDrawer';
+import { SnappTrackingMap } from './SnappTrackingMap';
 import {
   getUserWalletBalance,
   getMerchantWalletStats,
@@ -110,6 +111,7 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({
   // Menu Modal State
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [trackingModalOrder, setTrackingModalOrder] = useState<MerchantOrder | null>(null);
 
   // Menu Form Fields
   const [itemName, setItemName] = useState('');
@@ -791,21 +793,33 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({
                         </span>
                       </div>
 
-                      {/* Functional Dynamic Status Advancement Button */}
-                      {!isDelivered ? (
+                      {/* Actions: Map Tracking & Status Advancement */}
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => handleAdvanceOrderStatus(order)}
-                          className={`px-4 py-2.5 rounded-xl font-extrabold text-xs font-cairo transition-all shadow-md cursor-pointer ${currentConfig.nextBtnClass}`}
+                          onClick={() => setTrackingModalOrder(order)}
+                          className="px-3 py-2 rounded-xl bg-[#232634] hover:bg-[#2e3140] text-[#2fa6a6] border border-[#2fa6a6]/40 text-xs font-bold font-cairo transition-all flex items-center gap-1 cursor-pointer shadow-md"
+                          title="عرض موقع المندوب على الخارطة"
                         >
-                          {currentConfig.nextBtnLabel}
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span>تتبع الخارطة</span>
                         </button>
-                      ) : (
-                        <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs font-cairo flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>تم التسليم</span>
-                        </span>
-                      )}
+
+                        {!isDelivered ? (
+                          <button
+                            type="button"
+                            onClick={() => handleAdvanceOrderStatus(order)}
+                            className={`px-4 py-2 rounded-xl font-extrabold text-xs font-cairo transition-all shadow-md cursor-pointer ${currentConfig.nextBtnClass}`}
+                          >
+                            {currentConfig.nextBtnLabel}
+                          </button>
+                        ) : (
+                          <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs font-cairo flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>تم التسليم</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -1495,6 +1509,84 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({
               </div>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Courier Map Tracking Modal */}
+      <AnimatePresence>
+        {trackingModalOrder && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-2xl bg-[#1b1d28] border border-[#2e3140] rounded-3xl p-5 shadow-2xl space-y-4 text-right font-cairo dir-rtl"
+              dir="rtl"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-[#2e3140]">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 rounded-xl bg-[#2fa6a6]/20 text-[#2fa6a6]">
+                    <Bike className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-extrabold text-[#f3efe6]">
+                      تتبع المندوب للطلب #{trackingModalOrder.orderNumber}
+                    </h3>
+                    <p className="text-xs text-[#9b98a6]">
+                      الزبون: {trackingModalOrder.customerName} ({trackingModalOrder.deliveryAddress})
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setTrackingModalOrder(null)}
+                  className="p-1.5 rounded-xl bg-[#232634] text-[#9b98a6] hover:text-[#f3efe6] cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Snapp Tracking Map */}
+              <SnappTrackingMap
+                pickupPoint={{
+                  lat: 36.1910,
+                  lng: 44.0090,
+                  name: `مطعم ${displayedMerchantName}`,
+                }}
+                destinationPoint={{
+                  lat: 36.1980,
+                  lng: 44.0200,
+                  name: trackingModalOrder.deliveryAddress || 'عنوان التسليم',
+                }}
+                driverData={{
+                  driverId: 'courier-merchant-view',
+                  driverName: 'مندوب التوصيل المعتمد',
+                  phone: '07709876543',
+                  vehicleDetails: 'دراجة شحن وتوصيل',
+                  rating: '4.9',
+                  lat: trackingModalOrder.status === 'delivered' ? 36.1980 : (trackingModalOrder.status === 'ready' ? 36.1950 : 36.1920),
+                  lng: trackingModalOrder.status === 'delivered' ? 44.0200 : (trackingModalOrder.status === 'ready' ? 44.0150 : 44.0100),
+                  heading: 45,
+                  speedKmH: 35,
+                }}
+                tripPhase={trackingModalOrder.status === 'delivered' ? 'completed' : (trackingModalOrder.status === 'ready' ? 'in_trip' : 'en_route_to_pickup')}
+                role="merchant"
+                mapHeight="360px"
+                title={`خارطة تتبع المندوب المباشرة — ${displayedMerchantName}`}
+              />
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setTrackingModalOrder(null)}
+                  className="px-5 py-2 rounded-xl bg-[#232634] text-[#f3efe6] font-bold text-xs cursor-pointer hover:bg-[#2e3140]"
+                >
+                  إغلاق الخارطة
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

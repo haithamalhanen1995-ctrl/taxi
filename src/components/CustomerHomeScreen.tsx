@@ -3,6 +3,7 @@ import { Navigation, MapPin, Phone, MessageSquare, X, Car, Clock, Bell, Loader2,
 import { motion, AnimatePresence } from 'motion/react';
 import { Language, TRANSLATIONS } from '../types';
 import { LiveCustomerMap, LocationPoint } from './LiveCustomerMap';
+import { SnappTrackingMap } from './SnappTrackingMap';
 import { searchLocations, searchLocationsDynamic, geocodeIraqLocationOnline, reverseGeocodeIraqLocation, IraqLocation, IRAQ_LOCATIONS } from '../data/iraqLocations';
 import { CustomerFoodDelivery } from './CustomerFoodDelivery';
 import { SideDrawer } from './SideDrawer';
@@ -1325,70 +1326,37 @@ export const CustomerHomeScreen: React.FC<CustomerHomeScreenProps> = ({
                 </div>
               )}
 
-              {/* Confirmed / In Trip View */}
+              {/* Confirmed / In Trip View with Snapp Map */}
               {(bookingStatus === 'confirmed' || bookingStatus === 'in_trip') && (
-                <div className="space-y-4">
-                  {/* Driver Arrival Alert Banner if triggered */}
-                  {(driverArrivedAlert || bookingStatus === 'in_trip') && (
-                    <motion.div
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="p-3 rounded-2xl bg-gradient-to-r from-emerald-950 via-[#1b1d28] to-emerald-900 border border-emerald-500 shadow-xl flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <span className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-xl animate-bounce">
-                          🚨
-                        </span>
-                        <div className="text-right">
-                          <h4 className="text-xs font-black text-emerald-300 font-cairo">
-                            {bookingStatus === 'in_trip' ? 'الرحلة جارية للوجهة 🏁' : 'وصل السائق إلى نقطة الانطلاق!'}
-                          </h4>
-                          <p className="text-[11px] text-[#9b98a6] font-cairo">
-                            {bookingStatus === 'in_trip'
-                              ? `التوجه إلى: ${activeRideData?.destName || destinationPoint?.name}`
-                              : `الكابتن بانتظارك بالأسفل (${activeRideData?.vehicleModel || 'تويوتا كامري 2023 - أبيض'})`}
-                          </p>
-                        </div>
-                      </div>
-
-                      <a
-                        href={`tel:${activeRideData?.driverPhone || '07701234567'}`}
-                        className="px-3 py-1.5 rounded-xl bg-emerald-500 text-[#12131a] font-bold text-xs font-cairo no-underline shrink-0"
-                      >
-                        اتصال 📞
-                      </a>
-                    </motion.div>
-                  )}
-
-                  {/* Driver Profile Card */}
-                  <div className="p-3.5 rounded-2xl bg-[#12131a] border border-[#2e3140] flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-[#232634] border-2 border-[#e8a33d] flex items-center justify-center text-xl font-bold text-[#e8a33d]">
-                          👨‍✈️
-                        </div>
-                        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-[#12131a]" />
-                      </div>
-                      <div className="text-right">
-                        <h4 className="text-sm font-extrabold text-[#f3efe6] font-cairo flex items-center gap-1.5">
-                          <span>{activeRideData?.driverName || 'الكابتن عثمان الفهداوي'}</span>
-                          <span className="text-[10px] bg-[#e8a33d]/20 text-[#e8a33d] px-1.5 py-0.2 rounded font-mono">
-                            ⭐ {activeRideData?.driverRating || '4.9'}
-                          </span>
-                        </h4>
-                        <p className="text-xs text-[#9b98a6] font-cairo mt-0.5">
-                          {activeRideData?.vehicleModel || 'تويوتا كامري 2023 - أبيض'} • ({activeRideData?.vehiclePlate || 'بغداد 84920 - أ'})
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="text-left bg-[#232634] px-2.5 py-1 rounded-xl border border-[#2e3140]">
-                      <span className="text-[10px] text-[#9b98a6] block font-cairo">الحالة</span>
-                      <span className="text-xs font-bold text-[#2fa6a6] font-cairo">
-                        {bookingStatus === 'in_trip' ? 'في الطريق' : 'متجه إليك'}
-                      </span>
-                    </div>
-                  </div>
+                <div className="space-y-3">
+                  {/* Snapp Realtime Map */}
+                  <SnappTrackingMap
+                    pickupPoint={{
+                      lat: pickupPoint?.lat || 36.1901,
+                      lng: pickupPoint?.lng || 44.0091,
+                      name: pickupPoint?.name || 'موقع الانطلاق',
+                    }}
+                    destinationPoint={{
+                      lat: destinationPoint?.lat || 36.1980,
+                      lng: destinationPoint?.lng || 44.0200,
+                      name: destinationPoint?.name || 'الوجهة',
+                    }}
+                    driverData={{
+                      driverId: activeRideData?.driverId || 'seed-driver-1',
+                      driverName: activeRideData?.driverName || 'الكابتن عثمان الفهداوي',
+                      phone: activeRideData?.driverPhone || '07701234567',
+                      vehicleDetails: activeRideData?.vehicleModel || 'تويوتا كامري 2023 - أبيض',
+                      rating: activeRideData?.driverRating || '4.9',
+                      lat: firebaseDriverLocation?.lat || (pickupPoint?.lat ? pickupPoint.lat - 0.005 : 36.1880),
+                      lng: firebaseDriverLocation?.lng || (pickupPoint?.lng ? pickupPoint.lng - 0.005 : 44.0050),
+                      heading: firebaseDriverLocation?.heading || 45,
+                      speedKmH: firebaseDriverLocation?.speedKmH || 42,
+                    }}
+                    tripPhase={bookingStatus === 'in_trip' ? 'in_trip' : 'en_route_to_pickup'}
+                    role="customer"
+                    mapHeight="340px"
+                    title="تتبع الخارطة المباشر — اسنپ 🚖"
+                  />
 
                   {/* Ride & Tracking Summary Info */}
                   <div className="grid grid-cols-3 gap-2 text-center text-xs font-cairo">
@@ -1412,17 +1380,17 @@ export const CustomerHomeScreen: React.FC<CustomerHomeScreenProps> = ({
                   <div className="flex items-center gap-2 pt-1">
                     <a
                       href={`tel:${activeRideData?.driverPhone || '07701234567'}`}
-                      className="flex-1 h-11 rounded-xl bg-[#2fa6a6] hover:bg-[#258d8d] text-[#12131a] font-bold text-xs font-cairo flex items-center justify-center gap-1.5 transition-colors no-underline"
+                      className="flex-1 h-11 rounded-xl bg-[#2fa6a6] hover:bg-[#258d8d] text-[#12131a] font-bold text-xs font-cairo flex items-center justify-center gap-1.5 transition-colors no-underline shadow-lg"
                     >
                       <Phone className="w-4 h-4" />
-                      <span>اتصال بالسائق</span>
+                      <span>اتصال بالسائق مباشرة</span>
                     </a>
 
                     <a
                       href={`https://wa.me/964${(activeRideData?.driverPhone || '07701234567').replace(/^0/, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 h-11 rounded-xl bg-[#25D366] hover:bg-[#1eb855] text-white font-bold text-xs font-cairo flex items-center justify-center gap-1.5 transition-colors no-underline"
+                      className="flex-1 h-11 rounded-xl bg-[#25D366] hover:bg-[#1eb855] text-white font-bold text-xs font-cairo flex items-center justify-center gap-1.5 transition-colors no-underline shadow-lg"
                     >
                       <MessageSquare className="w-4 h-4" />
                       <span>واتساب</span>
@@ -1431,9 +1399,9 @@ export const CustomerHomeScreen: React.FC<CustomerHomeScreenProps> = ({
                     <button
                       type="button"
                       onClick={handleCancelBooking}
-                      className="px-3 h-11 rounded-xl bg-[#232634] hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-[#2e3140] hover:border-red-500/40 text-xs font-bold font-cairo transition-colors cursor-pointer"
+                      className="px-4 h-11 rounded-xl bg-[#232634] hover:bg-red-500/20 text-red-400 border border-[#2e3140] hover:border-red-500/40 text-xs font-bold font-cairo transition-colors cursor-pointer"
                     >
-                      إلغاء
+                      إلغاء الطلب
                     </button>
                   </div>
                 </div>
