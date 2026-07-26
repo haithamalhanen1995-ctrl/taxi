@@ -1,0 +1,6 @@
+{
+  "name": "تكسي الأمان - Al-Aman Taxi",
+  "description": "تطبيق تكسي الأمان لحجز التكسي وتوصيل الطعام والرحلات",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

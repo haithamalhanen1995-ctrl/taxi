@@ -1,0 +1,103 @@
+{
+  "entities": {
+    "users": {
+      "title": "Users",
+      "description": "User accounts including customers, drivers, merchants, and admin",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "password": { "type": "string" },
+        "accountType": { "type": "string", "enum": ["customer", "driver", "merchant", "admin"] },
+        "status": { "type": "string", "enum": ["active", "pending", "rejected", "suspended"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "fullName", "username", "accountType", "status"]
+    },
+    "rides": {
+      "title": "Rides",
+      "description": "Taxi ride bookings and real-time status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "pickupName": { "type": "string" },
+        "destName": { "type": "string" },
+        "fareAmount": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "customerId", "status"]
+    },
+    "menu_items": {
+      "title": "Menu Items",
+      "description": "Merchant food items and pricing",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "merchantId": { "type": "string" },
+        "name": { "type": "string" },
+        "priceIqd": { "type": "number" },
+        "isAvailable": { "type": "boolean" }
+      },
+      "required": ["id", "merchantId", "name", "priceIqd"]
+    },
+    "merchant_orders": {
+      "title": "Merchant Orders",
+      "description": "Food delivery orders from customers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "merchantId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "totalAmountIqd": { "type": "number" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "merchantId", "status"]
+    },
+    "merchant_posts": {
+      "title": "Merchant Posts",
+      "description": "Offers and news posts by merchants",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "merchantId": { "type": "string" },
+        "title": { "type": "string" },
+        "isPublished": { "type": "boolean" }
+      },
+      "required": ["id", "merchantId", "title"]
+    },
+    "support_tickets": {
+      "title": "Support Tickets",
+      "description": "Customer and driver help requests",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "title"]
+    },
+    "driver_locations": {
+      "title": "Driver Real-time Locations",
+      "description": "Live GPS location coordinates of online drivers updated in real-time",
+      "type": "object",
+      "properties": {
+        "driverId": { "type": "string" },
+        "driverName": { "type": "string" },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "heading": { "type": "number" },
+        "speedKmH": { "type": "number" },
+        "isOnline": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["driverId", "lat", "lng"]
+    }
+  }
+}

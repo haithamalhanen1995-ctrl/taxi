@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@layer base {
+  body {
+    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+    background-color: #12131a;
+    color: #f3efe6;
+  }
+}
+
+.font-cairo {
+  font-family: 'Cairo', system-ui, sans-serif;
+}
+
+.font-plex {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Custom glow and focus utilities */
+.amber-glow {
+  box-shadow: 0 0 25px -5px rgba(232, 163, 61, 0.25);
+}
+
+.amber-glow-btn {
+  box-shadow: 0 4px 20px rgba(232, 163, 61, 0.3);
+}
+
+.amber-glow-btn:hover {
+  box-shadow: 0 6px 28px rgba(232, 163, 61, 0.45);
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #12131a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2e3140;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f4459;
+}
+
+/* Leaflet DivIcon reset */
+.leaflet-div-icon,
+.custom-pickup-icon,
+.custom-dest-icon,
+.custom-taxi-icon,
+.custom-active-taxi-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.custom-taxi-icon {
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
